@@ -6,6 +6,7 @@ from cloudshell.shell.core.driver_context import InitCommandContext, AutoLoadCom
 import uuid
 import json
 from coolname import generate_slug
+from cloudshell.shell.core.session.cloudshell_session import CloudShellSessionContext
 
 
 #from data_model import *  # run 'shellfoundry generate' to generate data model classes
@@ -17,6 +18,7 @@ class MimicDriver (ResourceDriverInterface):
         ctor must be without arguments, it is created with reflection at run time
         """
         self.request_parser = DriverRequestParser()
+        self.address = ""
 
     def initialize(self, context):
         """
@@ -86,12 +88,12 @@ class MimicDriver (ResourceDriverInterface):
         
         deploy_action = next(a for a in actions if isinstance(a, DeployApp))
         
-        address = deploy_action.actionParams.deployment.attributes['Mimic.MimicDeploy.Address'] or '127.0.0.1'
+        self.address = deploy_action.actionParams.deployment.attributes['Mimic.MimicDeploy.Address'] or '127.0.0.1'
         app_name = generate_slug(3)
         return DriverResponse([DeployAppResult(actionId=deploy_action.actionId, success=True, 
             vmUuid=str(uuid.uuid4()), 
             vmName=app_name,
-            deployedAppAddress=address, 
+            deployedAppAddress="NA",
             deployedAppAttributes=[], 
             deployedAppAdditionalData=dict(),
             vmDetailsData=VmDetailsData(appName=app_name))]).to_driver_response_json()
@@ -125,6 +127,13 @@ class MimicDriver (ResourceDriverInterface):
         :param CancellationContext cancellation_context:
         :return:
         """
+        api = CloudShellSessionContext(context).get_api()
+        res_id = context.remote_reservation.reservation_id
+        current_address = context.remote_endpoints[0].address
+        api.WriteMessageToReservationOutput(res_id, "current address:{}".format(current_address))
+        app_name = context.remote_endpoints[0].name
+        api.UpdateResourceAddress(resourceFullPath=app_name, resourceAddress=self.address)
+
         pass
 
     def GetVmDetails(self, context, requests, cancellation_context):

@@ -18,7 +18,7 @@ class MimicDriver (ResourceDriverInterface):
         ctor must be without arguments, it is created with reflection at run time
         """
         self.request_parser = DriverRequestParser()
-        self.address = ""
+        self.address_map = {}
 
     def initialize(self, context):
         """
@@ -88,9 +88,14 @@ class MimicDriver (ResourceDriverInterface):
         
         deploy_action = next(a for a in actions if isinstance(a, DeployApp))
         
-        self.address = deploy_action.actionParams.deployment.attributes['Mimic.MimicDeploy.Address'] or '127.0.0.1'
-        app_name = generate_slug(3)
-        return DriverResponse([DeployAppResult(actionId=deploy_action.actionId, success=True, 
+        address = deploy_action.actionParams.deployment.attributes['Mimic.MimicDeploy.Address'] or '127.0.0.1'
+
+        def get_short_uuid():
+            return str(uuid.uuid4())[:4]
+
+        app_name = "{}_{}-{}".format(generate_slug(2), get_short_uuid(), get_short_uuid())
+        self.address_map[app_name] = address
+        return DriverResponse([DeployAppResult(actionId=deploy_action.actionId, success=True,
             vmUuid=str(uuid.uuid4()), 
             vmName=app_name,
             deployedAppAddress="NA",
@@ -129,12 +134,10 @@ class MimicDriver (ResourceDriverInterface):
         """
         api = CloudShellSessionContext(context).get_api()
         res_id = context.remote_reservation.reservation_id
-        current_address = context.remote_endpoints[0].address
-        api.WriteMessageToReservationOutput(res_id, "current address:{}".format(current_address))
         app_name = context.remote_endpoints[0].name
-        api.UpdateResourceAddress(resourceFullPath=app_name, resourceAddress=self.address)
-
-        pass
+        app_address_from_deploy = self.address_map.get(app_name, "N/A")
+        api.UpdateResourceAddress(resourceFullPath=app_name, resourceAddress=app_address_from_deploy)
+        api.WriteMessageToReservationOutput(res_id, "refreshing '{}' with IP :{}".format(app_name, app_address_from_deploy))
 
     def GetVmDetails(self, context, requests, cancellation_context):
         """

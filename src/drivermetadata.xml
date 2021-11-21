@@ -1,4 +1,4 @@
-<Driver Description="" MainClass="driver.MimicDriver" Name="MimicDriver" Version="1.0.0">
+<Driver Description="" MainClass="driver.MimicDriver" Name="MimicDriver" Version="1.0.0" PythonVersion="3">
     <Layout>
         <Category Name="Connectivity">
             <Command Description="" DisplayName="Refresh IP" EnableCancellation="true" Name="remote_refresh_ip" Tags="remote_connectivity,allow_shared" />

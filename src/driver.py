@@ -134,10 +134,13 @@ class MimicDriver (ResourceDriverInterface):
         """
         api = CloudShellSessionContext(context).get_api()
         res_id = context.remote_reservation.reservation_id
-        app_name = context.remote_endpoints[0].name
-        app_address_from_deploy = self.address_map.get(app_name, "N/A")
-        api.UpdateResourceAddress(resourceFullPath=app_name, resourceAddress=app_address_from_deploy)
-        api.WriteMessageToReservationOutput(res_id, "refreshing '{}' with IP :{}".format(app_name, app_address_from_deploy))
+        curr_app_resource = context.remote_endpoints[0]
+        curr_address = curr_app_resource.address
+        app_name = curr_app_resource.name
+        app_address_from_deploy = self.address_map.get(app_name)
+        app_address = app_address_from_deploy if app_address_from_deploy else curr_address
+        api.UpdateResourceAddress(resourceFullPath=app_name, resourceAddress=app_address)
+        api.WriteMessageToReservationOutput(res_id, "refreshing '{}' with IP :{}".format(app_name, app_address))
 
     def GetVmDetails(self, context, requests, cancellation_context):
         """

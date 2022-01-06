@@ -93,7 +93,8 @@ class MimicDriver (ResourceDriverInterface):
         def get_short_uuid():
             return str(uuid.uuid4())[:4]
 
-        app_name = "{}_{}-{}".format(generate_slug(2), get_short_uuid(), get_short_uuid())
+        # app_name = "{}_{}-{}".format(generate_slug(2), get_short_uuid(), get_short_uuid())
+        app_name = "{}_{}-{}".format(deploy_action.actionParams.appName, get_short_uuid(), get_short_uuid())
         self.address_map[app_name] = address
         return DriverResponse([DeployAppResult(actionId=deploy_action.actionId, success=True,
             vmUuid=str(uuid.uuid4()), 
@@ -223,7 +224,22 @@ class MimicDriver (ResourceDriverInterface):
         :return: a json object with the list of connectivity changes which were carried out by the driver
         :rtype: str
         """
-        pass
+        # Write request
+        request_json = json.loads(request)
+
+        # Build Response
+        action_results = [
+            {
+                "actionId": str(actionResult['actionId']),
+                "type": str(actionResult['type']),
+                "infoMessage": "",
+                "errorMessage": "",
+                "success": "True",
+                "updatedInterface": "None",
+            } for actionResult in request_json['driverRequest']['actions']
+        ]
+
+        return 'command_json_result=' + str({"driverResponse": {"actionResults": action_results}}) + '=command_json_result_end'
 
     # </editor-fold> 
 

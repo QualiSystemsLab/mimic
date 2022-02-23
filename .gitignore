@@ -61,3 +61,4 @@ cloudshell_config.yml
 
 #pycharm
 .idea/
+.vscode/

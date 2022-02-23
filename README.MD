@@ -1,6 +1,7 @@
 # Mimic Cloud Provider
 A mock cloud provider to simulate the app deployment lifecycle in cloudshell.
-Very useful for demo scenarios, or to test configuration management against static infra.
+This is useful for a mock demo scenario, or to test configuration management scripts during development. 
+Test your post deployment scripts without waiting for a real vm deployment.
 
 ## Usage
 - Install 2G cloud provider shell

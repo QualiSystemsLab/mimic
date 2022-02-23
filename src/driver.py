@@ -5,9 +5,7 @@ from cloudshell.shell.core.driver_context import InitCommandContext, AutoLoadCom
     AutoLoadAttribute, AutoLoadDetails, CancellationContext, ResourceRemoteCommandContext
 import uuid
 import json
-from coolname import generate_slug
 from cloudshell.shell.core.session.cloudshell_session import CloudShellSessionContext
-
 
 #from data_model import *  # run 'shellfoundry generate' to generate data model classes
 
@@ -93,7 +91,6 @@ class MimicDriver (ResourceDriverInterface):
         def get_short_uuid():
             return str(uuid.uuid4())[:4]
 
-        # app_name = "{}_{}-{}".format(generate_slug(2), get_short_uuid(), get_short_uuid())
         app_name = "{}_{}-{}".format(deploy_action.actionParams.appName, get_short_uuid(), get_short_uuid())
         self.address_map[app_name] = address
         return DriverResponse([DeployAppResult(actionId=deploy_action.actionId, success=True,
